@@ -1,6 +1,9 @@
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
+import streamlit as st
 
+
+PINECONE_API_KEY = str(st.secrets["PINECONE_API_KEY"])
 
 def return_vdb_client(api_key_holder):
     pc = Pinecone(api_key=api_key_holder)
@@ -13,8 +16,9 @@ def text_to_vec(text):
     embeddings = model.encode(text)
     return embeddings.tolist()
 
-def get_relevant_contexts(query, api_key, top_k=3, filterer = "resume"):
-    index = return_vdb_client(api_key)
+
+def get_relevant_contexts(query, top_k=3, filterer = "resume"):
+    index = return_vdb_client(PINECONE_API_KEY)
     query_embedding = text_to_vec(query)
 
     encoded_vector_hit = index.query(

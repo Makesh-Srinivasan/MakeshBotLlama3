@@ -1,70 +1,44 @@
-# import streamlit as st
-# from generator import Llama_3
-# from vdb import get_relevant_contexts
-# import os
-
-# PINECONE_API_KEY = str(os.environ.get('PINECONE_API_KEY', 'DefaultAPIKeyIfNotSet'))
-# LLAMA3_ENDPOINT = str(os.environ.get('LLAMA3_ENDPOINT', 'DefaultAPIKeyIfNotSet'))
-# LLAMA3_API_KEY = str(os.environ.get('LLAMA3_API_KEY', 'DefaultAPIKeyIfNotSet'))
-
-# st.title("Chat with the model trained to answer questions about my profile")
-
-# # Initialize chat history. You must move this to an independent table during production.
-# if "messages" not in st.session_state:
-#     st.session_state.messages = []
-
-# # Display chat messages from history on app rerun
-# for message in st.session_state.messages:
-#     with st.chat_message(message["role"]):
-#         st.markdown(message["content"])
-
-# # React to user input
-# if prompt := st.chat_input("What is up?"):
-#     # Display user message in chat message container
-#     st.chat_message("user").markdown(prompt)
-    
-#     # Add user message to chat history
-#     st.session_state.messages.append({"role": "user", "content": prompt})
-
-#     chatbot = Llama_3()
-
-#     retreived_contexts = get_relevant_contexts(prompt, PINECONE_API_KEY, top_k=3)
-    
-#     # Query the RAG model with the prompt
-#     llm_answer = chatbot.generate_answer(f"{prompt}", retreived_contexts, st.session_state.messages, LLAMA3_ENDPOINT, LLAMA3_API_KEY)
-    
-#     print(f"\t* QUESTION: {prompt}\n\t* CONTEXT: {retreived_contexts}\n\t* ANSWER: {llm_answer}")
-#     # Display assistant response in chat message container
-#     response = f"Virtual Makesh: {llm_answer}"
-#     with st.chat_message("assistant"):
-#         st.markdown(response)
-    
-#     # Add assistant response to chat history
-#     st.session_state.messages.append({"role": "assistant", "content": response})
-
-
-
 import streamlit as st
-from generator import Llama_3
-from vdb import get_relevant_contexts
-import os
+from src.generator import Llama_3
+from src.retreiver import get_relevant_contexts
 
 
-PINECONE_API_KEY = str(st.secrets["PINECONE_API_KEY"])
-LLAMA3_ENDPOINT = str(st.secrets["LLAMA3_ENDPOINT"])
-LLAMA3_API_KEY = str(st.secrets["LLAMA3_API_KEY"])
+# GENERATOR MODEL INIT
+chatbot = Llama_3()
 
 
+##### STREAMLIT UI SIDE-BAR CODE
 st.caption("<h4 style='text-align: center;'>Makesh bot can answer any questions that you might have about my profile using Retrieval-Augmented Generation (RAG). Chat and learn more!</h4>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<h1 style='font-size: 48px;'>Makesh Bot</h1>", unsafe_allow_html=True)
 
+st.sidebar.markdown("""
+<style>
+.inline-form {
+    display: flex;
+    align-items: left;
+    justify-content: space-between;
+}
+.inline-logo {
+    height: 30px;  /* Adjust the logo size as needed */
+    width: auto;
+    margin-left: 0px;  /* Space between button and logo */
+}
+</style>
+""", unsafe_allow_html=True)
 
-# Button to clear chat history
-if st.sidebar.button("New Chat"):
-    st.session_state.messages = []
-st.sidebar.markdown("</br>", unsafe_allow_html=True)
-
+with st.sidebar.container():
+    col1, col2 = st.columns(2, gap="small")
+    with col1:
+        if st.button("New Chat"):
+            st.session_state.messages = []
+    with col2:
+        st.markdown("""
+            <a href="https://www.linkedin.com/in/makesh-srinivasan/">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LinkedIn_Logo.svg/1280px-LinkedIn_Logo.svg.png" alt="LinkedIn" class="inline-logo">
+            </a>
+            """, unsafe_allow_html=True)
+        
 with st.sidebar.expander("**Quick Settings**", expanded=True):
     options_behaviour = ["Fun 🎨", "Professional 📚"]
     behaviour_choice = st.radio("How do you want the bot to behave?", options_behaviour, index=1, help="'Fun' allows the bot to be a little more creative and fun, 'Professional' encourages the bot to be exact and professional.")
@@ -78,7 +52,6 @@ with st.sidebar.expander("**Quick Settings**", expanded=True):
     else:  # professional
         temperature_default = 20
         maxtokens_default = 900
-
 
 # Hidden advanced settings
 with st.sidebar.expander("Advanced Settings", expanded=False):
@@ -97,7 +70,7 @@ with st.sidebar.expander("Advanced Settings", expanded=False):
 
 
 
-
+##### STREAMLIT FUNCTIONAL CODE
 
 # Initialize chat history. You must move this to an independent table during production.
 if "messages" not in st.session_state:
@@ -110,6 +83,7 @@ for message in st.session_state.messages:
 
 # React to user input
 if prompt := st.chat_input("What does Makesh study?"):
+    
     # Display user message in chat message container
     st.chat_message("user").markdown(prompt)
     
@@ -117,12 +91,13 @@ if prompt := st.chat_input("What does Makesh study?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Retreival
-    retreived_contexts = get_relevant_contexts(prompt, PINECONE_API_KEY, top_k=k_for_context_retreival)
+    retreived_contexts = get_relevant_contexts(prompt, top_k=k_for_context_retreival)
     
-    chatbot = Llama_3()
-    llm_answer = chatbot.generate_answer(f"{prompt}", retreived_contexts, st.session_state.messages, LLAMA3_ENDPOINT, LLAMA3_API_KEY, custom_model_params={"temperature": temperature_value/100,"top_p": 1,"max_tokens": maxlen_generation,"stream": False})
+    custom_model_params = {"temperature": temperature_value/100,"top_p": 1,"max_tokens": maxlen_generation,"stream": False}
+    llm_answer = chatbot.generate_answer(query=prompt, retreived_contexts=retreived_contexts, chat_history=st.session_state.messages, custom_model_params=custom_model_params)
     
     print(f"\t* QUESTION: {prompt}\n\t* CONTEXT: {retreived_contexts}\n\t* ANSWER: {llm_answer}")
+    
     # Display assistant response in chat message container
     response = f"Virtual Makesh: {llm_answer}"
     with st.chat_message("assistant"):
