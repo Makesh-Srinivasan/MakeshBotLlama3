@@ -1,5 +1,3 @@
-/__pycache__/
-__pycache__
+__pycache__/*
 
-/.streamlit/
-.streamlit
+/.streamlit/secrets.toml
