@@ -59,7 +59,7 @@ with st.sidebar.expander("Advanced Settings", expanded=False):
     st.markdown("<p style='font-size: 12px; text-align: center;'>If you opened this, you must be familiar with RAG. Play around with these settings!</p>", unsafe_allow_html=True)
     temperature_value = st.slider("Temperature 🌡️", 0, 100, temperature_default, help="High temperature means creative outputs, low means factual and exact!")
     maxlen_generation = st.slider("Max tokens 📝", value=maxtokens_default, step=20, max_value=1500, min_value=50, help="Maximum number of tokens you want to generate")
-    k_for_context_retreival = st.number_input("K: Top-k contexts for retreival 🔎", value=3, max_value=5, min_value=2, help="Top k contexts that you want the model to retreive from RAG to generate your answer.")
+    k_for_context_retreival = st.number_input("K: Top-k contexts for retreival 🔎", value=6, max_value=10, min_value=2, help="Top k contexts that you want the model to retreive from RAG to generate your answer.")
     # stream_value = ['No', 'Yes']
     # default_option_stream_index = stream_value.index("No")
     # stream_bool_value = st.radio("Stream:", stream_value, index=default_option_stream_index, help="Stream allows the LLM decoder model to output texts to the UI as streams continuously. Selecting No makes the model print the answer on the UI AFTER the answer is generated entirely")
