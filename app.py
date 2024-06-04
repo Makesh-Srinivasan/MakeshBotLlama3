@@ -16,6 +16,7 @@ st.sidebar.markdown("<h1 style='font-size: 48px;'>Makesh Bot</h1>", unsafe_allow
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
 st.sidebar.markdown("<p>About the back-end</p>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-size: 12px;'>Meta's Llama 3 8B is hosted on NVIDIA NIM thanks to their limited & free model hosting options. The vector store is accessed via Pinecone's API.</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-size: 12px;'><strong>NOTE: </strong>This is a prompt-tuned Llama-3 chat completion model with safety guardrails. The answers it generates are not guaranteed to be fully correct due to issues of AI-hallucination. Please verify information on my profile or reach out to me directly!</p>", unsafe_allow_html=True)
 st.sidebar.markdown("</br>", unsafe_allow_html=True)
 
 # st.sidebar.markdown(
