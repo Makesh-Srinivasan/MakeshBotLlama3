@@ -47,19 +47,19 @@ with st.sidebar.expander("**Quick Settings**", expanded=True):
     st.sidebar.markdown("<p style='font-size: 12px;'>Meta's Llama 3 8B is hosted on NVIDIA NIM thanks to their limited & free model hosting options. The vector store is accessed via Pinecone's API.</p>", unsafe_allow_html=True)
     st.sidebar.markdown("</br>", unsafe_allow_html=True)
     if behaviour_choice == "Fun 🎨":
-        temperature_default = 70
-        maxtokens_default = 1024
+        st.session_state.temperature_default = 70
+        st.session_state.maxtokens_default = 1024
     else:  # professional
-        temperature_default = 20
-        maxtokens_default = 900
+        st.session_state.temperature_default = 20
+        st.session_state.maxtokens_default = 900
 
 # Hidden advanced settings
 with st.sidebar.expander("Advanced Settings", expanded=False):
     st.caption("<h6 style='text-align: center;'></h6>", unsafe_allow_html=True)
     st.markdown("<p style='font-size: 12px; text-align: center;'>If you opened this, you must be familiar with RAG. Play around with these settings!</p>", unsafe_allow_html=True)
-    temperature_value = st.slider("Temperature 🌡️", 0, 100, temperature_default, help="High temperature means creative outputs, low means factual and exact!")
-    maxlen_generation = st.slider("Max tokens 📝", value=maxtokens_default, step=20, max_value=1500, min_value=50, help="Maximum number of tokens you want to generate")
-    k_for_context_retreival = st.number_input("K: Top-k contexts for retreival 🔎", value=6, max_value=10, min_value=2, help="Top k contexts that you want the model to retreive from RAG to generate your answer.")
+    st.session_state.temperature_value = st.slider("Temperature 🌡️", 0, 100, st.session_state.temperature_default, help="High temperature means creative outputs, low means factual and exact!")
+    st.session_state.maxlen_generation = st.slider("Max tokens 📝", value=st.session_state.maxtokens_default, step=20, max_value=1500, min_value=50, help="Maximum number of tokens you want to generate")
+    st.session_state.k_for_context_retreival = st.number_input("K: Top-k contexts for retreival 🔎", value=10, max_value=10, min_value=2, help="Top k contexts that you want the model to retreive from RAG to generate your answer.")
     # stream_value = ['No', 'Yes']
     # default_option_stream_index = stream_value.index("No")
     # stream_bool_value = st.radio("Stream:", stream_value, index=default_option_stream_index, help="Stream allows the LLM decoder model to output texts to the UI as streams continuously. Selecting No makes the model print the answer on the UI AFTER the answer is generated entirely")
@@ -91,9 +91,9 @@ if prompt := st.chat_input("What does Makesh study?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Retreival
-    retreived_contexts = get_relevant_contexts(prompt, top_k=k_for_context_retreival)
+    retreived_contexts = get_relevant_contexts(prompt, top_k=st.session_state.k_for_context_retreival)
     
-    custom_model_params = {"temperature": temperature_value/100,"top_p": 1,"max_tokens": maxlen_generation,"stream": False}
+    custom_model_params = {"temperature": st.session_state.temperature_value/100,"top_p": 1,"max_tokens": st.session_state.maxlen_generation,"stream": False}
     llm_answer = chatbot.generate_answer(query=prompt, retreived_contexts=retreived_contexts, chat_history=st.session_state.messages, custom_model_params=custom_model_params)
     
     print(f"\t* QUESTION: {prompt}\n\t* CONTEXT: {retreived_contexts}\n\t* ANSWER: {llm_answer}")

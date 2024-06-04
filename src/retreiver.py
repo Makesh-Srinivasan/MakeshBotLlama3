@@ -17,7 +17,7 @@ def text_to_vec(text):
     return embeddings.tolist()
 
 
-def get_relevant_contexts(query, top_k=3, filterer = "resume"):
+def get_relevant_contexts(query, top_k=10, filterer = "resume"):
     index = return_vdb_client(PINECONE_API_KEY)
     query_embedding = text_to_vec(query)
 
